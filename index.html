@@ -1,0 +1,123 @@
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Öykü Eğitim & Danışmanlık Tatistoskop Çalışması</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-image: url('logo.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            margin: 0;
+            padding-top: 100px;
+        }
+        h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        .controls {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+        }
+        #wordBox {
+            font-size: 48px;
+            margin: 20px 0;
+        }
+        #inputBox {
+            font-size: 24px;
+            padding: 8px;
+        }
+        #result {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Öykü Eğitim & Danışmanlık Tatistoskop Çalışması</h1>
+    <div class="controls">
+        <label>Hız: <input type="number" id="speed" value="1000"> ms</label>
+        <label>Seviye: <span id="level">1</span></label>
+        <button onclick="toggleAutoLevel()">Oto Seviye: <span id="autoLevelStatus">Kapalı</span></button>
+    </div>
+    <div id="wordBox">Hazır mısın?</div>
+    <input type="text" id="inputBox" placeholder="Kelimeyi yaz" onkeydown="checkInput(event)">
+    <div id="result"></div>
+
+    <audio id="correctSound" src="correct.mp3"></audio>
+    <audio id="wrongSound" src="wrong.mp3"></audio>
+
+    <script>
+        const kelimeler = [
+            "elma", "masa", "kitap", "kedi", "araba", "defter", "okul", "sandalye", "telefon", "bilgisayar",
+            "kalem", "çanta", "gözlük", "kapı", "pencere", "yatak", "bardak", "kaşık", "çatal", "tabak",
+            "merdiven", "halı", "perde", "lamba", "ayna", "çorap", "pantolon", "tişört", "ceket", "ayakkabı"
+        ]; // Temsili 30 kelime; daha sonra 500 yapılabilir
+
+        let level = 1;
+        let index = 0;
+        let correctCount = 0;
+        let autoLevel = false;
+        let timer;
+        let endTimer;
+
+        const wordBox = document.getElementById("wordBox");
+        const inputBox = document.getElementById("inputBox");
+        const result = document.getElementById("result");
+        const speedInput = document.getElementById("speed");
+        const levelSpan = document.getElementById("level");
+
+        function toggleAutoLevel() {
+            autoLevel = !autoLevel;
+            document.getElementById("autoLevelStatus").textContent = autoLevel ? "Açık" : "Kapalı";
+        }
+
+        function showNextWord() {
+            inputBox.value = "";
+            const currentWord = kelimeler[index % kelimeler.length];
+            wordBox.textContent = currentWord;
+            index++;
+
+            timer = setTimeout(showNextWord, parseInt(speedInput.value));
+        }
+
+        function checkInput(event) {
+            if (event.key === "Enter") {
+                const typed = inputBox.value.trim();
+                const correct = wordBox.textContent.trim();
+                if (typed === correct) {
+                    correctCount++;
+                    result.textContent = "Doğru!";
+                    document.getElementById("correctSound").play();
+                } else {
+                    result.textContent = `Yanlış! Doğrusu: ${correct}`;
+                    document.getElementById("wrongSound").play();
+                }
+
+                if (autoLevel && correctCount > 0 && correctCount % 5 === 0) {
+                    level++;
+                    levelSpan.textContent = level;
+                }
+            }
+        }
+
+        function startApp() {
+            showNextWord();
+            endTimer = setTimeout(() => {
+                clearTimeout(timer);
+                window.location.href = "https://sites.google.com/view/oykuegitimdanismanlik/ana-sayfa?authuser=0";
+            }, 120000);
+        }
+
+        window.onload = startApp;
+    </script>
+</body>
+</html>
